@@ -111,29 +111,40 @@ const CodeButton = styled(Button)<{ remove: boolean }>`
 `;
 
 const SubmitButton = styled(Button)`
-  font-size: 4em;
   line-height: 50%;
   border: 0;
   cursor: pointer;
 
   @media (hover: hover) {
     :hover {
-      color: #246E8D;
+      & > span {
+        color: #246E8D;
+      }
     }
 
     :active {
-      color: #84ABC1;
+      & > span {
+        color: #84ABC1;
+      }
     }
   }
   @media (hover: none) {
     :active {
-      color: #246E8D;
+      & > span {
+        color: #246E8D;
+      }
     }
   }
   :disabled {
-    color: #246E8D;
     cursor: default;
+    & > span {
+      color: #246E8D;
+    }
   }
+`;
+
+const SubmitIcon = styled.span`
+  font-size: 6em;
 `;
 
 const IconButton = styled(Button)<{ disabled: boolean }>`
@@ -289,7 +300,9 @@ const Passcode = function ({
       <CodeLine>
         {codeComponents}
         <SubmitButton disabled={!disabled} onClick={check}>
-          ▶
+          <SubmitIcon className="material-icons">
+            play_arrow
+          </SubmitIcon>
         </SubmitButton>
         <Banner key={key} initial={key === 1}>
           ACCESS DENIED

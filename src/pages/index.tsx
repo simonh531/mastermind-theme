@@ -1,6 +1,7 @@
 // eslint-disable-next-line no-use-before-define
 import React, { useState } from 'react';
 import '../stylesheet.css';
+import '../normalize.css';
 import styled, { keyframes } from 'styled-components';
 import Passcode from '../components/passcode';
 import Guesses from '../components/guesses';
