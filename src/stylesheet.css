@@ -1,0 +1,45 @@
+@font-face {
+  font-family: 'stratum2';
+  src: url('./stratum2-regular-webfont.woff') format('woff');
+  font-style: normal;
+  font-weight: 400;
+}
+@font-face {
+  font-family: 'stratum2';
+  src: url('./stratum2-medium-webfont.woff') format('woff');
+  font-style: normal;
+  font-weight: 500;
+}
+@font-face {
+  font-family: 'stratum2';
+  src: url('./stratum2-bold-webfont.woff') format('woff');
+  font-style: normal;
+  font-weight: 700;
+}
+
+*, *:before, *:after {
+  /* Chrome 9-, Safari 5-, iOS 4.2-, Android 3-, Blackberry 7- */
+  -webkit-box-sizing: border-box; 
+
+  /* Firefox (desktop or Android) 28- */
+  -moz-box-sizing: border-box;
+
+  /* Firefox 29+, IE 8+, Chrome 10+, Safari 5.1+, Opera 9.5+, iOS 5+, Opera Mini Anything, Blackberry 10+, Android 4+ */
+  box-sizing: border-box;
+}
+
+* {
+  color: #84ABC1;
+  font-family: stratum2;
+  -webkit-tap-highlight-color: transparent;
+}
+
+body {
+  background-color: #03141E;
+  margin: 0;
+  padding: 0;
+}
+
+button {
+  user-select: none;
+}
