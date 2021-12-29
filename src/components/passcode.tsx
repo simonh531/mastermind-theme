@@ -31,59 +31,34 @@ const ButtonLine = styled.div`
   display: flex;
 `;
 
-const ArcReactorIcon = styled(ArcReactor)<{ remove: boolean }>`
+const ArcReactorIcon = styled(ArcReactor)`
   fill: #84ABC1;
   width: auto;
   height: auto;
-  ${({ remove }) => (remove ? `
-    :hover {
-      fill: #246E8D
-    }
-  ` : '')}
 `;
 
-const AsgardIcon = styled(Asgard)<{ remove: boolean }>`
+const AsgardIcon = styled(Asgard)`
   fill: #84ABC1;
   width: auto;
   height: auto;
-  ${({ remove }) => (remove ? `
-    :hover {
-      fill: #246E8D
-    }
-  ` : '')}
 `;
 
-const HydraIcon = styled(Hydra)<{ remove: boolean }>`
+const HydraIcon = styled(Hydra)`
   fill: #84ABC1;
   width: auto;
   height: auto;
-  ${({ remove }) => (remove ? `
-    :hover {
-      fill: #246E8D
-    }
-  ` : '')}
 `;
 
-const SanctumIcon = styled(Sanctum)<{ remove: boolean }>`
+const SanctumIcon = styled(Sanctum)`
   fill: #84ABC1;
   width: auto;
   height: auto;
-  ${({ remove }) => (remove ? `
-    :hover {
-      fill: #246E8D
-    }
-  ` : '')}
 `;
 
-const ShieldIcon = styled(Shield)<{ remove: boolean }>`
+const ShieldIcon = styled(Shield)`
   fill: #84ABC1;
   width: auto;
   height: auto;
-  ${({ remove }) => (remove ? `
-    :hover {
-      fill: #246E8D;
-    }
-  ` : '')}
 `;
 
 const Button = styled.button`
@@ -97,23 +72,34 @@ const Button = styled.button`
   background: none;
 `;
 
-const CodeButton = styled(Button)<{ remove: boolean }>`
+const EmptyCodeButton = styled(Button)`
   border: 0;
   border-bottom: 2px solid #246E8D;
-  ${({ remove }) => (remove ? 'cursor: pointer;' : '')}
 
   :after {
     content: "";
     display: block;
     padding-bottom: 100%;
   }
+`;
 
+const CodeButton = styled(EmptyCodeButton)`
+  cursor: pointer;
+
+  & > svg {
+    :hover {
+      fill: #246E8D
+    }
+  }
 `;
 
 const SubmitButton = styled(Button)`
   line-height: 50%;
   border: 0;
   cursor: pointer;
+  & > span {
+    color: #84ABC1;
+  }
 
   @media (hover: hover) {
     :hover {
@@ -217,11 +203,21 @@ const Passcode = function ({
   };
   const disabled = !!code.reduce((prevValue, value) => Math.min(prevValue, value));
 
+  const audio = [
+    new Audio('/sounds/back_001.ogg'),
+    new Audio('/sounds/forceField_000.ogg'),
+    new Audio('/sounds/forceField_001.ogg'),
+    new Audio('/sounds/forceField_002.ogg'),
+    new Audio('/sounds/forceField_003.ogg'),
+    new Audio('/sounds/forceField_004.ogg'),
+  ];
+
   const makeSetCode = (value:number) => () => {
     const changeIndex = code.findIndex((element) => element === 0);
     if (changeIndex !== -1) {
       const newCode = [...code];
       newCode[changeIndex] = value;
+      audio[value].play();
       setCode(newCode);
     }
   };
@@ -229,6 +225,7 @@ const Passcode = function ({
   const makeRemoveCode = (index: number) => () => {
     const newCode = [...code];
     newCode[index] = 0;
+    audio[0].play();
     setCode(newCode);
   };
 
@@ -240,9 +237,8 @@ const Passcode = function ({
             // eslint-disable-next-line react/no-array-index-key
             key={index}
             onClick={makeRemoveCode(index)}
-            remove
           >
-            <ArcReactorIcon remove />
+            <ArcReactorIcon />
           </CodeButton>
         );
       case 2:
@@ -251,9 +247,8 @@ const Passcode = function ({
             // eslint-disable-next-line react/no-array-index-key
             key={index}
             onClick={makeRemoveCode(index)}
-            remove
           >
-            <AsgardIcon remove />
+            <AsgardIcon />
           </CodeButton>
         );
       case 3:
@@ -262,9 +257,8 @@ const Passcode = function ({
             // eslint-disable-next-line react/no-array-index-key
             key={index}
             onClick={makeRemoveCode(index)}
-            remove
           >
-            <HydraIcon remove />
+            <HydraIcon />
           </CodeButton>
         );
       case 4:
@@ -273,9 +267,8 @@ const Passcode = function ({
             // eslint-disable-next-line react/no-array-index-key
             key={index}
             onClick={makeRemoveCode(index)}
-            remove
           >
-            <SanctumIcon remove />
+            <SanctumIcon />
           </CodeButton>
         );
       case 5:
@@ -284,14 +277,13 @@ const Passcode = function ({
             // eslint-disable-next-line react/no-array-index-key
             key={index}
             onClick={makeRemoveCode(index)}
-            remove
           >
-            <ShieldIcon remove />
+            <ShieldIcon />
           </CodeButton>
         );
       default:
         // eslint-disable-next-line react/no-array-index-key
-        return <CodeButton key={index} remove={false} />;
+        return <EmptyCodeButton key={index} />;
     }
   });
   return (
@@ -300,7 +292,7 @@ const Passcode = function ({
       <CodeLine>
         {codeComponents}
         <SubmitButton disabled={!disabled} onClick={check}>
-          <SubmitIcon className="material-icons">
+          <SubmitIcon className="material-icons-sharp">
             play_arrow
           </SubmitIcon>
         </SubmitButton>

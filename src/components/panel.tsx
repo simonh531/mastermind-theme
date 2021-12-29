@@ -52,6 +52,8 @@ const Triangle = styled.div<{ verticalArea: string, horizontalArea: string, colo
 `;
 
 const Content = styled.div<{ backgroundColor: string, scroll: undefined | boolean }>`
+  height: 100%;
+  width: 100%;
   overflow-y: ${({ scroll }) => (scroll ? 'scroll' : 'auto')};
   max-height: 100%;
 

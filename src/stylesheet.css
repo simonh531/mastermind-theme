@@ -30,11 +30,11 @@
 
 html {
   touch-action: manipulation;
+  font-family: stratum2;
+  color: #84ABC1;
 }
 
 * {
-  color: #84ABC1;
-  font-family: stratum2;
   -webkit-tap-highlight-color: transparent;
 }
 

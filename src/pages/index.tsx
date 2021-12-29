@@ -1,11 +1,14 @@
 // eslint-disable-next-line no-use-before-define
 import React, { useState } from 'react';
+import { graphql } from 'gatsby';
 import '../stylesheet.css';
 import '../normalize.css';
 import styled, { keyframes } from 'styled-components';
 import Passcode from '../components/passcode';
 import Guesses from '../components/guesses';
+import Hacking from '../components/hacking';
 import Desktop from '../components/desktop';
+import LockScreen from '../components/lockScreen';
 import { Layer } from '../styles/styles';
 
 const Main = styled.main`
@@ -17,7 +20,7 @@ const Main = styled.main`
 
 const Column1 = styled.div<{active: boolean}>`
   width: ${({ active }) => (active ? '50' : '25')}%;
-  padding: ${({ active }) => (active ? '12' : '0')}px;
+  padding: ${({ active }) => (active ? '12px 6px 12px 12px' : '0px')};
   transition: width 1s, padding 1s;
 `;
 
@@ -26,7 +29,6 @@ const Column2 = styled.div<{active: boolean}>`
   height: 100%;
   display: flex;
   flex-direction: column;
-  padding: 6px;
   transition: width 1s;
 `;
 
@@ -39,12 +41,16 @@ const PasscodeArea = styled.div`
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 6px;
+  padding: 12px 12px 6px 6px;
 `;
 
-const HackingArea = styled.div`
+const HackingArea = styled.div<{active: boolean}>`
   flex: 1;
-  padding: 6px;
+  height: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 6px 12px 12px 6px;
 `;
 
 const BannerLayer = styled(Layer)`
@@ -76,13 +82,23 @@ const Banner = styled.h1<{initial: boolean}>`
   pointer-events: ${({ initial }) => (initial ? 'none' : 'auto')};
 `;
 
-const Home = function () {
+const Home = function ({ data } : { data: {
+  allContentfulSiteOptions: { edges: { node: {triesBeforeLock: number} }[] }
+}}) {
   const [code, setCode] = useState([0, 0, 0, 0]);
   const [solution, setSolution] = useState<number[]>([]);
   const [guesses, setGuesses] = useState<number[][]>([]);
   const [key, setKey] = useState(1);
   const [unlocked, setUnlocked] = useState(false);
 
+  const { triesBeforeLock } = data.allContentfulSiteOptions.edges[0].node;
+  const [triesUntilLock, setTriesUntilLock] = useState(triesBeforeLock);
+
+  const resetTriesUntilLock = () => setTriesUntilLock(triesBeforeLock);
+
+  const backAudio = new Audio('/sounds/back_001.ogg');
+  const wrongAudio = new Audio('/sounds/error_008.ogg');
+  const correctAudio = new Audio('/sounds/confirmation_002.ogg');
   const checkSolution = () => {
     if (!solution.length) {
       let validated = false;
@@ -136,6 +152,8 @@ const Home = function () {
     }
     if (correct) {
       setKey(Math.random());
+      setTriesUntilLock(triesBeforeLock);
+      correctAudio.play();
       setTimeout(() => {
         setUnlocked(true);
         setTimeout(() => {
@@ -148,8 +166,10 @@ const Home = function () {
       setGuesses([...guesses, code]);
     }
     if (!correct) {
+      wrongAudio.play();
       setCode([0, 0, 0, 0]);
       setGuesses([...guesses, code]);
+      setTriesUntilLock((prevValue:number) => prevValue - 1);
     }
     return correct;
   };
@@ -175,9 +195,12 @@ const Home = function () {
             active={!unlocked}
           />
         </PasscodeArea>
-        <HackingArea />
+        <HackingArea active={!!guesses.length && !!solution.length && !unlocked}>
+          <Hacking active={!!guesses.length && !!solution.length && !unlocked} />
+        </HackingArea>
       </Column2>
-      <Desktop active={unlocked} lock={() => setUnlocked(false)} />
+      <Desktop active={unlocked} lock={() => { setUnlocked(false); backAudio.play(); }} />
+      {triesUntilLock ? '' : <LockScreen unlock={resetTriesUntilLock} />}
       <BannerLayer>
         <Banner key={key} initial={key === 1}>
           ACCESS GRANTED
@@ -186,5 +209,17 @@ const Home = function () {
     </Main>
   );
 };
+
+export const query = graphql`
+  query triesBeforeLock {
+    allContentfulSiteOptions {
+      edges {
+        node {
+          triesBeforeLock
+        }
+      }
+    }
+  }
+`;
 
 export default Home;

@@ -198,11 +198,11 @@ const Guesses = function ({
     const blocks = [];
     for (let i = 0; i < 4; i += 1) {
       if (i < numCorrect) {
-        blocks.push(<Block color="#84ABC1" />);
+        blocks.push(<Block color="#84ABC1" key={i} />);
       } else if (i < numCorrect + numExist) {
-        blocks.push(<Block color="#246E8D" />);
+        blocks.push(<Block color="#246E8D" key={i} />);
       } else {
-        blocks.push(<Block color="transparent" />);
+        blocks.push(<Block color="transparent" key={i} />);
       }
     }
 

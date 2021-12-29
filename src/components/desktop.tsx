@@ -1,5 +1,9 @@
 // eslint-disable-next-line no-use-before-define
 import React, { useState } from 'react';
+import { useStaticQuery, graphql } from 'gatsby';
+import {
+  renderRichText, RenderRichTextData, ContentfulRichTextGatsbyReference,
+} from 'gatsby-source-contentful/rich-text';
 import styled from 'styled-components';
 import Panel from './panel';
 import Avengers from '../images/The_Avengers_logo.svg';
@@ -83,9 +87,11 @@ const LogOffIcon = styled.span`
 `;
 
 const Files = styled.div`
-  flex: 1;
-  display: flex;
-  align-items: flex-start;
+  height: 100%;
+  display: inline-flex;
+  flex-direction: column;
+  /* flex-wrap: wrap; */
+  /* align-items: center; */
   position: relative;
 `;
 
@@ -119,6 +125,7 @@ const File = styled.button`
 
 const FileTitle = styled.div`
   font-size: 1.6em;
+  color: #84ABC1;
 `;
 
 const FileIcon = styled.span`
@@ -197,27 +204,69 @@ const CloseIcon = styled.span`
   color: #84ABC1;
 `;
 
-const text:Record<string, {title: string, body: string}> = {
-  test1: {
-    title: 'Lorem ipsum',
-    body: 'Dolor sit amet',
-  },
-  test2: {
-    title: 'Consectetur',
-    body: 'Adipiscing elit',
-  },
-};
-
 const Desktop = function ({ active, lock }: {
   active: boolean,
   lock: () => void,
 }) {
   const [focus, setFocus] = useState('');
   const [show, setShow] = useState(false);
+  const queryResult = useStaticQuery(graphql`
+    query Files {
+      allContentfulFile {
+        edges {
+          node {
+            title
+            fileName
+            id
+            text {
+              raw
+            }
+          }
+        }
+      }
+    }
+  `);
 
+  const openAudio = new Audio('/sounds/click_003.ogg');
   const open = (file:string) => () => {
+    openAudio.play();
     setFocus(file);
     setShow(true);
+  };
+
+  const fileNodes:React.ReactNode[] = [];
+  const textObject:Record<string, {
+    title: string,
+    body: RenderRichTextData<ContentfulRichTextGatsbyReference>
+  }> = {};
+
+  queryResult.allContentfulFile.edges.forEach((data : {node: {
+    id: string,
+    title: string,
+    text: RenderRichTextData<ContentfulRichTextGatsbyReference>,
+    fileName: string
+  }}) => {
+    const {
+      id, title, text, fileName,
+    } = data.node;
+    fileNodes.push(
+      <File onClick={open(id)}>
+        <FileIcon className="material-icons-sharp">text_snippet</FileIcon>
+        <FileTitle>
+          {fileName}
+        </FileTitle>
+      </File>,
+    );
+    textObject[id] = {
+      title,
+      body: text,
+    };
+  });
+
+  const backAudio = new Audio('/sounds/back_001.ogg');
+  const exit = () => {
+    setShow(false);
+    backAudio.play();
   };
 
   return (
@@ -227,38 +276,27 @@ const Desktop = function ({ active, lock }: {
       </LogoContainer>
       <Taskbar>
         <LogOff onClick={lock}>
-          <LogOffIcon className="material-icons">lock</LogOffIcon>
+          <LogOffIcon className="material-icons-sharp">lock</LogOffIcon>
         </LogOff>
       </Taskbar>
       <Files>
-        <File onClick={open('test1')}>
-          <FileIcon className="material-icons">text_snippet</FileIcon>
-          <FileTitle>
-            Test 1
-          </FileTitle>
-        </File>
-        <File onClick={open('test2')}>
-          <FileIcon className="material-icons">text_snippet</FileIcon>
-          <FileTitle>
-            Test 2
-          </FileTitle>
-        </File>
-        <WindowContainer active={show}>
-          <ExitSpace onClick={() => setShow(false)} />
-          <StyledPanel backgroundColor="#030D15">
-            {focus ? (
-              <TextContainer active={show}>
-                <TextTitle>{text[focus].title}</TextTitle>
-                <TextBody>{text[focus].body}</TextBody>
-              </TextContainer>
-            ) : ''}
-            <CloseButton onClick={() => setShow(false)}>
-              <CloseIcon className="material-icons">close</CloseIcon>
-            </CloseButton>
-          </StyledPanel>
-          <ExitSpace onClick={() => setShow(false)} />
-        </WindowContainer>
+        {fileNodes}
       </Files>
+      <WindowContainer active={show}>
+        <ExitSpace onClick={exit} />
+        <StyledPanel backgroundColor="#030D15">
+          {focus ? (
+            <TextContainer active={show}>
+              <TextTitle>{textObject[focus].title}</TextTitle>
+              <TextBody>{renderRichText(textObject[focus].body)}</TextBody>
+            </TextContainer>
+          ) : ''}
+          <CloseButton onClick={exit}>
+            <CloseIcon className="material-icons-sharp">close</CloseIcon>
+          </CloseButton>
+        </StyledPanel>
+        <ExitSpace onClick={exit} />
+      </WindowContainer>
     </Container>
   );
 };
