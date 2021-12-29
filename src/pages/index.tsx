@@ -1,5 +1,5 @@
 // eslint-disable-next-line no-use-before-define
-import React, { useState } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { graphql } from 'gatsby';
 import '../stylesheet.css';
 import '../normalize.css';
@@ -95,10 +95,16 @@ const Home = function ({ data } : { data: {
   const [triesUntilLock, setTriesUntilLock] = useState(triesBeforeLock);
 
   const resetTriesUntilLock = () => setTriesUntilLock(triesBeforeLock);
+  const backAudio = useRef<null|HTMLAudioElement>(null);
+  const wrongAudio = useRef<null|HTMLAudioElement>(null);
+  const correctAudio = useRef<null|HTMLAudioElement>(null);
 
-  const backAudio = new Audio('/sounds/back_001.ogg');
-  const wrongAudio = new Audio('/sounds/error_008.ogg');
-  const correctAudio = new Audio('/sounds/confirmation_002.ogg');
+  useEffect(() => {
+    backAudio.current = new Audio('/sounds/back_001.ogg');
+    wrongAudio.current = new Audio('/sounds/error_008.ogg');
+    correctAudio.current = new Audio('/sounds/confirmation_002.ogg');
+  }, []);
+
   const checkSolution = () => {
     if (!solution.length) {
       let validated = false;
@@ -153,7 +159,9 @@ const Home = function ({ data } : { data: {
     if (correct) {
       setKey(Math.random());
       setTriesUntilLock(triesBeforeLock);
-      correctAudio.play();
+      if (correctAudio.current) {
+        correctAudio.current.play();
+      }
       setTimeout(() => {
         setUnlocked(true);
         setTimeout(() => {
@@ -166,7 +174,9 @@ const Home = function ({ data } : { data: {
       setGuesses([...guesses, code]);
     }
     if (!correct) {
-      wrongAudio.play();
+      if (wrongAudio.current) {
+        wrongAudio.current.play();
+      }
       setCode([0, 0, 0, 0]);
       setGuesses([...guesses, code]);
       setTriesUntilLock((prevValue:number) => prevValue - 1);
@@ -199,7 +209,15 @@ const Home = function ({ data } : { data: {
           <Hacking active={!!guesses.length && !!solution.length && !unlocked} />
         </HackingArea>
       </Column2>
-      <Desktop active={unlocked} lock={() => { setUnlocked(false); backAudio.play(); }} />
+      <Desktop
+        active={unlocked}
+        lock={() => {
+          setUnlocked(false);
+          if (backAudio.current) {
+            backAudio.current.play();
+          }
+        }}
+      />
       {triesUntilLock ? '' : <LockScreen unlock={resetTriesUntilLock} />}
       <BannerLayer>
         <Banner key={key} initial={key === 1}>

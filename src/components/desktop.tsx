@@ -1,5 +1,5 @@
 // eslint-disable-next-line no-use-before-define
-import React, { useState } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { useStaticQuery, graphql } from 'gatsby';
 import {
   renderRichText, RenderRichTextData, ContentfulRichTextGatsbyReference,
@@ -226,10 +226,17 @@ const Desktop = function ({ active, lock }: {
       }
     }
   `);
+  const openAudio = useRef<null | HTMLAudioElement>(null);
+  const backAudio = useRef<null | HTMLAudioElement>(null);
+  useEffect(() => {
+    openAudio.current = new Audio('/sounds/click_003.ogg');
+    backAudio.current = new Audio('/sounds/back_001.ogg');
+  }, []);
 
-  const openAudio = new Audio('/sounds/click_003.ogg');
   const open = (file:string) => () => {
-    openAudio.play();
+    if (openAudio.current) {
+      openAudio.current.play();
+    }
     setFocus(file);
     setShow(true);
   };
@@ -263,10 +270,11 @@ const Desktop = function ({ active, lock }: {
     };
   });
 
-  const backAudio = new Audio('/sounds/back_001.ogg');
   const exit = () => {
+    if (backAudio.current) {
+      backAudio.current.play();
+    }
     setShow(false);
-    backAudio.play();
   };
 
   return (

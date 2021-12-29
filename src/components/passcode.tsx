@@ -1,5 +1,5 @@
 // eslint-disable-next-line no-use-before-define
-import React, { useState } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import styled, { keyframes } from 'styled-components';
 import Panel from './panel';
 import ArcReactor from '../images/arcReactor.svg';
@@ -202,22 +202,26 @@ const Passcode = function ({
     }
   };
   const disabled = !!code.reduce((prevValue, value) => Math.min(prevValue, value));
-
-  const audio = [
-    new Audio('/sounds/back_001.ogg'),
-    new Audio('/sounds/forceField_000.ogg'),
-    new Audio('/sounds/forceField_001.ogg'),
-    new Audio('/sounds/forceField_002.ogg'),
-    new Audio('/sounds/forceField_003.ogg'),
-    new Audio('/sounds/forceField_004.ogg'),
-  ];
+  const audio = useRef<null|HTMLAudioElement[]>(null);
+  useEffect(() => {
+    audio.current = [
+      new Audio('/sounds/back_001.ogg'),
+      new Audio('/sounds/forceField_000.ogg'),
+      new Audio('/sounds/forceField_001.ogg'),
+      new Audio('/sounds/forceField_002.ogg'),
+      new Audio('/sounds/forceField_003.ogg'),
+      new Audio('/sounds/forceField_004.ogg'),
+    ];
+  }, []);
 
   const makeSetCode = (value:number) => () => {
     const changeIndex = code.findIndex((element) => element === 0);
     if (changeIndex !== -1) {
       const newCode = [...code];
       newCode[changeIndex] = value;
-      audio[value].play();
+      if (audio.current) {
+        audio.current[value].play();
+      }
       setCode(newCode);
     }
   };
@@ -225,7 +229,9 @@ const Passcode = function ({
   const makeRemoveCode = (index: number) => () => {
     const newCode = [...code];
     newCode[index] = 0;
-    audio[0].play();
+    if (audio.current) {
+      audio.current[0].play();
+    }
     setCode(newCode);
   };
 
