@@ -235,6 +235,8 @@ const Desktop = function ({ active, lock }: {
 
   const open = (file:string) => () => {
     if (openAudio.current) {
+      openAudio.current.pause();
+      openAudio.current.currentTime = 0;
       openAudio.current.play();
     }
     setFocus(file);
@@ -272,6 +274,8 @@ const Desktop = function ({ active, lock }: {
 
   const exit = () => {
     if (backAudio.current) {
+      backAudio.current.pause();
+      backAudio.current.currentTime = 0;
       backAudio.current.play();
     }
     setShow(false);

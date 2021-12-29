@@ -53,10 +53,10 @@ const Hacking = function ({ active } : {
     }
   `);
   const { edges } = queryResult.allContentfulHackerCodeCodeTextNode;
-  const lengths = edges.map(({ node }:{node:{code:string}}) => {
+  const lengths:number[] = edges.map(({ node }:{node:{code:string}}) => {
     const { code } = node;
     const lines = code.split('\n');
-    return lines.map((line:string) => line.length);
+    return lines.length;
   });
   const [lastIndex, setLastIndex] = useState(Math.floor(Math.random() * edges.length));
   const [currentIndex, setCurrentIndex] = useState(
@@ -64,7 +64,7 @@ const Hacking = function ({ active } : {
   );
   const lastIndexRef = useRef(lastIndex);
   const currentIndexRef = useRef(currentIndex);
-  const [space, setSpace] = useState<number>(lengths[lastIndex].length);
+  const [space, setSpace] = useState<number>(lengths[lastIndex]);
 
   const animationId = useRef(0);
   useEffect(() => {
@@ -77,11 +77,11 @@ const Hacking = function ({ active } : {
             const nextValue = prevValue + Math.floor(elapsed / 16);
             if (
               nextValue
-              < lengths[lastIndexRef.current].length + lengths[currentIndexRef.current].length
+              < lengths[lastIndexRef.current] + lengths[currentIndexRef.current]
             ) {
               return nextValue;
             }
-            const toSubtract = lengths[lastIndexRef.current].length;
+            const toSubtract = lengths[lastIndexRef.current];
             lastIndexRef.current = currentIndexRef.current;
             setLastIndex(lastIndexRef.current);
 
@@ -101,22 +101,21 @@ const Hacking = function ({ active } : {
     return () => { /* no cleanup */ };
   }, [active]);
 
-  const codeBlocks = useMemo(() => (
-    <>
-      <SyntaxHighlighter language="tsx" style={customStyle} key={lastIndex}>
-        {edges[lastIndex].node.code}
+  const codeBlocks = useMemo(() => edges.map(
+    (edgeData: { node: { code: string } }, index:number) => (
+    // eslint-disable-next-line react/no-array-index-key
+      <SyntaxHighlighter language="tsx" style={customStyle} key={index}>
+        {edgeData.node.code}
       </SyntaxHighlighter>
-      <SyntaxHighlighter language="tsx" style={customStyle} key={currentIndex}>
-        {edges[currentIndex].node.code}
-      </SyntaxHighlighter>
-    </>
-  ), [lastIndex, currentIndex]);
+    ),
+  ), [edges]);
 
   return (
     <StyledPanel backgroundColor="#020F18" active={active} scroll>
       <HackingContainer>
         <HackingText space={space}>
-          { codeBlocks }
+          { codeBlocks[lastIndex] }
+          { codeBlocks[currentIndex] }
         </HackingText>
       </HackingContainer>
     </StyledPanel>

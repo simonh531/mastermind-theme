@@ -220,6 +220,8 @@ const Passcode = function ({
       const newCode = [...code];
       newCode[changeIndex] = value;
       if (audio.current) {
+        audio.current[value].pause();
+        audio.current[value].currentTime = 0;
         audio.current[value].play();
       }
       setCode(newCode);
@@ -230,6 +232,8 @@ const Passcode = function ({
     const newCode = [...code];
     newCode[index] = 0;
     if (audio.current) {
+      audio.current[0].pause();
+      audio.current[0].currentTime = 0;
       audio.current[0].play();
     }
     setCode(newCode);

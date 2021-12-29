@@ -160,6 +160,8 @@ const Home = function ({ data } : { data: {
       setKey(Math.random());
       setTriesUntilLock(triesBeforeLock);
       if (correctAudio.current) {
+        correctAudio.current.pause();
+        correctAudio.current.currentTime = 0;
         correctAudio.current.play();
       }
       setTimeout(() => {
@@ -175,6 +177,8 @@ const Home = function ({ data } : { data: {
     }
     if (!correct) {
       if (wrongAudio.current) {
+        wrongAudio.current.pause();
+        wrongAudio.current.currentTime = 0;
         wrongAudio.current.play();
       }
       setCode([0, 0, 0, 0]);
@@ -214,6 +218,8 @@ const Home = function ({ data } : { data: {
         lock={() => {
           setUnlocked(false);
           if (backAudio.current) {
+            backAudio.current.pause();
+            backAudio.current.currentTime = 0;
             backAudio.current.play();
           }
         }}
