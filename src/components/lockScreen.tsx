@@ -100,7 +100,10 @@ const LockScreen = function ({ unlock }: { unlock: () => void }) {
           lock
         </LockIcon>
         <Timer>
-          {timerValue.toFixed(2).split('').map((char:string) => <div>{char}</div>)}
+          {timerValue.toFixed(2).split('').map(
+            // eslint-disable-next-line react/no-array-index-key
+            (char:string, index:number) => <div key={index}>{char}</div>,
+          )}
         </Timer>
       </Banner>
     </BannerLayer>
