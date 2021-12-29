@@ -75,7 +75,10 @@ const Hacking = function ({ active } : {
           const elapsed = timestamp - lastTimestamp;
           setSpace((prevValue) => {
             const nextValue = prevValue + Math.floor(elapsed / 16);
-            if (nextValue < lengths[lastIndex].length + lengths[currentIndex].length) {
+            if (
+              nextValue
+              < lengths[lastIndexRef.current].length + lengths[currentIndexRef.current].length
+            ) {
               return nextValue;
             }
             const toSubtract = lengths[lastIndexRef.current].length;
