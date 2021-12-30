@@ -70,7 +70,7 @@ const PasscodeArea = styled.div`
 
   @media (max-width: 768px) and (orientation: portrait) {
     height: 100%;
-    font-size: 0.7em;
+    font-size: 0.65em;
     padding: 12px 12px 6px 12px;
   }
 `;
