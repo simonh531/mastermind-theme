@@ -19,6 +19,10 @@ const Container = styled.div<{active: boolean}>`
   pointer-events: ${({ active }) => (active ? 'auto' : 'none')};
   transition: opacity 1s;
   display: flex;
+
+  @media (max-width: 768px) and (orientation: portrait) {
+    flex-direction: column;
+  }
 `;
 
 const LogoContainer = styled.div`
@@ -37,12 +41,21 @@ const AvengersLogo = styled(Avengers)`
   fill: #246E8D;
   width: 50%;
   height: auto;
+  
+  @media (max-width: 768px) and (orientation: portrait) {
+    width: 80%;
+  }
 `;
 
 const Taskbar = styled.div`
   background-color: #246E8D;
   width: 30px;
   height: 100%;
+
+  @media (max-width: 768px) and (orientation: portrait) {
+    height: 30px;
+    width: 100%;
+  }
 `;
 
 const LogOff = styled.button`
@@ -90,9 +103,14 @@ const Files = styled.div`
   height: 100%;
   display: inline-flex;
   flex-direction: column;
-  /* flex-wrap: wrap; */
-  /* align-items: center; */
+  flex-wrap: wrap;
   position: relative;
+
+  @media (max-width: 768px) and (orientation: portrait) {
+    flex-direction: row;
+    height: auto;
+    font-size: 0.8em;
+  }
 `;
 
 const File = styled.button`
@@ -152,6 +170,10 @@ const StyledPanel = styled(Panel)`
   width: 40%;
   margin: 20px 12px;
   opacity: 0.98;
+
+  @media (max-width: 768px) {
+    width: 90%;
+  }
 `;
 
 const TextContainer = styled.div<{active: boolean}>`

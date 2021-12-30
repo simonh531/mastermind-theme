@@ -1,9 +1,10 @@
 // eslint-disable-next-line no-use-before-define
 import React, { useState, useRef, useEffect } from 'react';
 import { graphql } from 'gatsby';
+import styled, { keyframes } from 'styled-components';
+import { useMediaQuery } from 'react-responsive';
 import '../stylesheet.css';
 import '../normalize.css';
-import styled, { keyframes } from 'styled-components';
 import Passcode from '../components/passcode';
 import Guesses from '../components/guesses';
 import Hacking from '../components/hacking';
@@ -16,12 +17,23 @@ const Main = styled.main`
   height: 100vh;
   overflow: hidden;
   display: flex;
+
+  @media (max-width: 768px) and (orientation: portrait) {
+    flex-direction: column-reverse;
+  }
 `;
 
 const Column1 = styled.div<{active: boolean}>`
   width: ${({ active }) => (active ? '50' : '25')}%;
   padding: ${({ active }) => (active ? '12px 6px 12px 12px' : '0px')};
-  transition: width 1s, padding 1s;
+  transition: width 1s, padding 1s, flex 1s;
+
+  @media (max-width: 768px) and (orientation: portrait) {
+    flex: ${({ active }) => (active ? 1 : 0)};
+    height: 0;
+    width: 100%;
+    padding: ${({ active }) => (active ? '6px 12px 12px 12px' : '0px')};
+  }
 `;
 
 const Column2 = styled.div<{active: boolean}>`
@@ -29,12 +41,21 @@ const Column2 = styled.div<{active: boolean}>`
   height: 100%;
   display: flex;
   flex-direction: column;
-  transition: width 1s;
+  transition: width 1s, flex 1s;
+
+  @media (max-width: 768px) and (orientation: portrait) {
+    flex: ${({ active }) => (active ? 0 : 1)};
+    width: 100%;
+  }
 `;
 
 const EmptyArea = styled.div<{active: boolean}>`
   flex: ${({ active }) => (active ? 0 : 1)};
   transition: flex 1s;
+
+  @media (max-width: 768px) and (orientation: portrait) {
+    flex: 0;
+  }
 `;
 
 const PasscodeArea = styled.div`
@@ -42,6 +63,16 @@ const PasscodeArea = styled.div`
   align-items: center;
   justify-content: center;
   padding: 12px 12px 6px 6px;
+
+  @media (max-width: 768px) and (orientation: landscape) {
+    font-size: 0.5em;
+  }
+
+  @media (max-width: 768px) and (orientation: portrait) {
+    height: 100%;
+    font-size: 0.7em;
+    padding: 12px 12px 6px 12px;
+  }
 `;
 
 const HackingArea = styled.div<{active: boolean}>`
@@ -51,6 +82,7 @@ const HackingArea = styled.div<{active: boolean}>`
   align-items: center;
   justify-content: center;
   padding: 6px 12px 12px 6px;
+  pointer-events: none;
 `;
 
 const BannerLayer = styled(Layer)`
@@ -80,6 +112,11 @@ const Banner = styled.h1<{initial: boolean}>`
   animation: 1s 2 alternate ${appear} both;
   opacity: ${({ initial }) => (initial ? '0' : '1')};
   pointer-events: ${({ initial }) => (initial ? 'none' : 'auto')};
+  text-align: center;
+
+  @media (max-width: 768px) and (orientation: portrait) {
+    font-size: 4em;
+  }
 `;
 
 const Home = function ({ data } : { data: {
@@ -90,6 +127,7 @@ const Home = function ({ data } : { data: {
   const [guesses, setGuesses] = useState<number[][]>([]);
   const [key, setKey] = useState(1);
   const [unlocked, setUnlocked] = useState(false);
+  const isPortraitPhone = useMediaQuery({ query: '(max-width: 768px) and (orientation: portrait)' });
 
   const { triesBeforeLock } = data.allContentfulSiteOptions.edges[0].node;
   const [triesUntilLock, setTriesUntilLock] = useState(triesBeforeLock);
@@ -193,8 +231,8 @@ const Home = function ({ data } : { data: {
       <Column1 active={!!guesses.length && !!solution.length && !unlocked}>
         <Guesses
           active={
-            !!guesses.length && !!solution.length && !unlocked
-          }
+          !!guesses.length && !!solution.length && !unlocked
+        }
           guesses={guesses}
           solution={solution}
         />
@@ -209,9 +247,11 @@ const Home = function ({ data } : { data: {
             active={!unlocked}
           />
         </PasscodeArea>
-        <HackingArea active={!!guesses.length && !!solution.length && !unlocked}>
-          <Hacking active={!!guesses.length && !!solution.length && !unlocked} />
-        </HackingArea>
+        {!isPortraitPhone && (
+          <HackingArea active={!!guesses.length && !!solution.length && !unlocked}>
+            <Hacking active={!!guesses.length && !!solution.length && !unlocked} />
+          </HackingArea>
+        )}
       </Column2>
       <Desktop
         active={unlocked}

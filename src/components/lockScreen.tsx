@@ -23,14 +23,15 @@ const Banner = styled.div`
   border-top: 30px solid #D6224C;
   border-bottom: 30px solid #D6224C;
   margin: 1em 0;
-  background-color: rgba(2, 15, 24, 0.95);
+  background-color: #020F18;
   font-weight: 700;
   display: flex;
   justify-content: center;
   align-items: center;
-  font-size: 6em;
+  font-size: 5em;
   user-select: none;
   animation: 0.1s ${appear};
+  opacity: 0.8;
 `;
 
 const LockIcon = styled.span`
@@ -39,8 +40,6 @@ const LockIcon = styled.span`
 `;
 
 const Timer = styled.div`
-  background-color: #246E8D;
-  padding: 0 10px;
   position: absolute;
   bottom: calc(35% - 0.5em);
   display: flex;
@@ -48,10 +47,12 @@ const Timer = styled.div`
   & > div {
     color: #020F18;
     width: 1ch;
+    background-color: #246E8D;
   }
 
   & > div:nth-last-child(3) {
     width: 0.5ch;
+    background-color: #246E8D;
   }
 `;
 
