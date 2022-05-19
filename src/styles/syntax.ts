@@ -1,4 +1,4 @@
-const defaultColor = '#246E8D';
+export const defaultColor = '#246E8D';
 const secondaryColor = '#2b2b2b';
 const commentColor = '#d4d0ab';
 const punctuationColor = '#fefefe';
@@ -7,7 +7,7 @@ const booleanColor = '#84ABC1';
 const selectorColor = '#3BB1CC';
 const functionColor = '#D6224C';
 
-export default {
+export const extras = {
   'code[class*="language-"]': {
     color: defaultColor,
     background: 'none',
@@ -55,6 +55,16 @@ export default {
     borderRadius: '0.3em',
     whiteSpace: 'normal',
   },
+};
+
+interface SyntaxElement {
+  color?: string
+  fontWeight?: string
+  fontStyle?: string
+  cursor?: string
+}
+
+export const syntax:Record<string, SyntaxElement> = {
   comment: {
     color: commentColor,
   },

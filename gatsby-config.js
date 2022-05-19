@@ -1,10 +1,18 @@
 module.exports = {
   siteMetadata: {
-    siteUrl: 'https://www.yourdomain.tld',
+    siteUrl: 'https://mastermindthe.me',
     title: 'Avengers Mastermind',
   },
   plugins: [
     'gatsby-plugin-image',
+    'gatsby-plugin-sharp',
+    // {
+    //   resolve: 'gatsby-source-filesystem',
+    //   options: {
+    //     name: 'screenshots',
+    //     path: `${__dirname}/src/screenshots/`,
+    //   },
+    // },
     {
       resolve: 'gatsby-source-contentful',
       options: {
@@ -20,14 +28,14 @@ module.exports = {
         },
       },
     },
-    'gatsby-plugin-styled-components',
+    'gatsby-plugin-material-ui',
     'gatsby-plugin-typescript',
     {
       resolve: 'gatsby-plugin-manifest',
       options: {
         name: 'Avengers',
         short_name: 'Avengers',
-        icon: 'src/images/icon.png',
+        icon: 'src/images/icon.svg',
         start_url: '/',
         background_color: '#03141E',
         theme_color: '#03141E',

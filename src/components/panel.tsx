@@ -1,108 +1,154 @@
-// eslint-disable-next-line no-use-before-define
-import * as React from 'react';
-import styled from 'styled-components';
+import React from 'react';
+import { useTheme } from '@mui/material/styles';
+import { Box, styled } from '@mui/material';
 
 const borderWidth = 3;
+const cornerOffset = (3 / Math.cos(Math.PI / 8)) * Math.sin(Math.PI / 8); // (Math.sqrt(2) / 2);
 const paddingWidth = 8;
-const diagonal = Math.sqrt(paddingWidth * paddingWidth * 2);
 
-const Container = styled.div<{ backgroundColor: string }>`
-  position: relative;
-  margin: 8px;
-  background-color: ${({ backgroundColor }) => backgroundColor};
-`;
+class Corners {
+  x:number;
 
-const Padding = styled.div<{ area: string, backgroundColor: string }>`
-  width: ${({ area }) => (area === 'top' || area === 'bottom' ? '100%' : `${paddingWidth}px`)};
-  height: ${({ area }) => (area === 'top' || area === 'bottom' ? `${paddingWidth}px` : '100%')};
-  position: absolute;
-  ${({ area }) => `${area}: -${paddingWidth}px`};
-  ${({ area }) => (area === 'left' || area === 'right' ? 'top: 0;' : '')}
-  ${({ area }) => `border-${area}: ${borderWidth}px solid #84ABC1;`}
-  background-color: ${({ backgroundColor }) => backgroundColor};
-`;
+  y:number;
 
-const Corner = styled.div<{ verticalArea: string, horizontalArea: string, backgroundColor: string }>`
-  width: ${paddingWidth}px;
-  height: ${diagonal}px;
-  ${({ horizontalArea }) => `border-${horizontalArea}: ${borderWidth}px solid #84ABC1;`}
-  transform-origin: ${({ horizontalArea }) => horizontalArea} center;
-  transform: rotate(${({ verticalArea, horizontalArea }) => ((
-    (verticalArea === 'top' && horizontalArea === 'left')
-    || (verticalArea === 'bottom' && horizontalArea === 'right')
-  ) ? '' : '-')}45deg);
-  position: absolute;
-  ${({ verticalArea }) => `${verticalArea}: -${(paddingWidth + diagonal) / 2}px`};
-  ${({ horizontalArea }) => `${horizontalArea}: -${(paddingWidth) / 2}px`};
-  background-color: transparent;
-  /* background-color: ${({ backgroundColor }) => backgroundColor};  */
-`;
-
-const Triangle = styled.div<{ verticalArea: string, horizontalArea: string, color: string }>`
-  width: 0;
-  height: 0;
-  background-clip: padding-box;
-  border-top: ${borderWidth}px solid ${({ verticalArea, color }) => (verticalArea === 'bottom' ? color : 'transparent')};
-  border-right: ${borderWidth}px solid ${({ horizontalArea, color }) => (horizontalArea === 'left' ? color : 'transparent')};
-  border-bottom: ${borderWidth}px solid ${({ verticalArea, color }) => (verticalArea === 'top' ? color : 'transparent')};
-  border-left: ${borderWidth}px solid ${({ horizontalArea, color }) => (horizontalArea === 'right' ? color : 'transparent')};
-  position: absolute;
-  ${({ verticalArea }) => `${verticalArea}:${-borderWidth * 2}px`};
-  ${({ horizontalArea }) => `${horizontalArea}:${-borderWidth * 2}px`};
-`;
-
-const Content = styled.div<{ backgroundColor: string, scroll: undefined | boolean }>`
-  height: 100%;
-  width: 100%;
-  overflow-y: ${({ scroll }) => (scroll ? 'scroll' : 'auto')};
-  max-height: 100%;
-
-  /* width */
-  &::-webkit-scrollbar {
-    width: 3px;
+  constructor(x:number, y:number) {
+    this.x = x;
+    this.y = y;
   }
 
-  /* Track */
-  &::-webkit-scrollbar-track {
-    background: ${({ backgroundColor }) => backgroundColor}; 
-  }
-  
-  /* Handle */
-  &::-webkit-scrollbar-thumb {
-    background: #84ABC1; 
+  center() {
+    return `${this.x},${this.y}`;
   }
 
-  /* Handle on hover */
-  &::-webkit-scrollbar-thumb:hover {
-    background: #246E8D; 
+  left(distance:number) {
+    return `${this.x - distance},${this.y}`;
   }
-`;
+
+  right(distance:number) {
+    return `${this.x + distance},${this.y}`;
+  }
+
+  up(distance:number) {
+    return `${this.x},${this.y - distance}`;
+  }
+
+  down(distance:number) {
+    return `${this.x},${this.y + distance}`;
+  }
+}
+
+const topLeft = new Corners(0, 0);
+const topRight = new Corners(0, 8);
+const bottomRight = new Corners(8, 8);
+const bottomLeft = new Corners(8, 0);
+
+const SvgCorner = styled('svg')(({ verticalSide, horizontalSide }:{ verticalSide: string, horizontalSide: string }) => ({
+  width: `${paddingWidth}px`,
+  height: `${paddingWidth}px`,
+  position: 'absolute',
+  [verticalSide]: '-8px',
+  [horizontalSide]: '-8px',
+}));
+function Corner({ verticalSide, horizontalSide }:{
+  verticalSide: 'top' | 'bottom'
+  horizontalSide: 'left' | 'right'
+}) {
+  const theme = useTheme();
+  let backgroundPoints;
+  if (verticalSide === 'top' && horizontalSide === 'left') {
+    backgroundPoints = `0,${paddingWidth} ${paddingWidth},0 ${paddingWidth},${paddingWidth}`;
+  } else if (verticalSide === 'top' && horizontalSide === 'right') {
+    backgroundPoints = `0,0 ${paddingWidth},${paddingWidth} 0,${paddingWidth}`;
+  } else if (verticalSide === 'bottom' && horizontalSide === 'right') {
+    backgroundPoints = `0,${paddingWidth} ${paddingWidth},0 0,0`;
+  } else { // verticalSide === 'bottom' && horizontalSide === 'left'
+    backgroundPoints = `0,0 ${paddingWidth},${paddingWidth} ${paddingWidth},0`;
+  }
+  let points;
+  if (verticalSide === 'top' && horizontalSide === 'left') {
+    points = `${bottomLeft.center()} ${bottomLeft.up(cornerOffset)} ${topRight.left(cornerOffset)} ${topRight.center()} ${topRight.down(borderWidth)} ${bottomLeft.right(borderWidth)}`;
+  } else if (verticalSide === 'top' && horizontalSide === 'right') {
+    points = `${topLeft.center()} ${topLeft.right(cornerOffset)} ${bottomRight.up(cornerOffset)} ${bottomRight.center()} ${bottomRight.left(borderWidth)} ${topLeft.down(borderWidth)}`;
+  } else if (verticalSide === 'bottom' && horizontalSide === 'right') {
+    points = `${topRight.center()} ${topRight.down(cornerOffset)} ${bottomLeft.right(cornerOffset)} ${bottomLeft.center()} ${bottomLeft.up(borderWidth)} ${topRight.left(borderWidth)}`;
+  } else { // verticalSide === 'bottom' && horizontalSide === 'left'
+    points = `${bottomRight.center()} ${bottomRight.left(cornerOffset)} ${topLeft.down(cornerOffset)} ${topLeft.center()} ${topLeft.right(borderWidth)} ${bottomRight.up(borderWidth)}`;
+  }
+  return (
+    <SvgCorner
+      viewBox={`0 0 ${paddingWidth} ${paddingWidth}`}
+      verticalSide={verticalSide}
+      horizontalSide={horizontalSide}
+    >
+      <polygon
+        points={backgroundPoints}
+        fill={theme.palette.primary.main}
+        strokeWidth="0"
+      />
+      <polygon
+        points={points}
+        fill={theme.palette.secondary.main}
+        strokeWidth="0"
+      />
+    </SvgCorner>
+  );
+}
+
+const Padding = styled('div')<{ area: string }>(({ area, theme }) => ({
+  width: area === 'top' || area === 'bottom' ? '100%' : `${paddingWidth}px`,
+  height: area === 'top' || area === 'bottom' ? `${paddingWidth}px` : '100%',
+  position: 'absolute',
+  backgroundColor: theme.palette.primary.main,
+  [area]: `-${paddingWidth}px`,
+  [`border-${area}`]: `${borderWidth}px solid ${theme.palette.secondary.main}`,
+  ...area === 'left' || area === 'right' ? { top: '0' } : {},
+}));
 
 const Panel = function (
   {
-    children, backgroundColor, className, scroll,
+    children, scroll, sx,
   }: {
-    children: React.ReactNode, backgroundColor:string, className?: string, scroll?: boolean
+    children: React.ReactNode,
+    sx?:Record<string, string|Record<string, string>>,
+    scroll?: boolean,
   },
 ) {
   return (
-    <Container backgroundColor={backgroundColor} className={className}>
-      <Triangle verticalArea="top" horizontalArea="left" color={backgroundColor} />
-      <Triangle verticalArea="top" horizontalArea="right" color={backgroundColor} />
-      <Triangle verticalArea="bottom" horizontalArea="right" color={backgroundColor} />
-      <Triangle verticalArea="bottom" horizontalArea="left" color={backgroundColor} />
-      <Padding area="top" backgroundColor={backgroundColor} />
-      <Padding area="right" backgroundColor={backgroundColor} />
-      <Padding area="bottom" backgroundColor={backgroundColor} />
-      <Padding area="left" backgroundColor={backgroundColor} />
-      <Corner verticalArea="top" horizontalArea="left" backgroundColor={backgroundColor} />
-      <Corner verticalArea="top" horizontalArea="right" backgroundColor={backgroundColor} />
-      <Corner verticalArea="bottom" horizontalArea="right" backgroundColor={backgroundColor} />
-      <Corner verticalArea="bottom" horizontalArea="left" backgroundColor={backgroundColor} />
-      <Content backgroundColor={backgroundColor} scroll={scroll}>
+    <Box
+      sx={{
+        position: 'relative',
+        margin: '8px',
+        backgroundColor: 'primary.main',
+        ...sx,
+      }}
+    >
+      <Padding area="top" />
+      <Padding area="right" />
+      <Padding area="bottom" />
+      <Padding area="left" />
+      <Corner verticalSide="top" horizontalSide="left" />
+      <Corner verticalSide="top" horizontalSide="right" />
+      <Corner verticalSide="bottom" horizontalSide="right" />
+      <Corner verticalSide="bottom" horizontalSide="left" />
+      <Box
+        sx={{
+          height: '100%',
+          width: '100%',
+          overflowY: scroll ? 'scroll' : 'auto',
+          maxHeight: '100%',
+          /* width */
+          '&::-webkit-scrollbar': { width: '3px' },
+          /* Track */
+          '&::-webkit-scrollbar-track': { backgroundColor: 'primary.main' },
+          /* Handle */
+          '&::-webkit-scrollbar-thumb': { backgroundColor: 'secondary.main' },
+          /* Handle on hover */
+          '&::-webkit-scrollbar-thumb:hover': { backgroundColor: 'secondary.dark' },
+        }}
+      >
         {children}
-      </Content>
-    </Container>
+      </Box>
+    </Box>
   );
 };
 
